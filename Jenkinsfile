@@ -1,34 +1,33 @@
 pipeline {
     agent any
     stages {
-        stage('Checkout') {
+        stage('Init') {
             steps {
                 sh "echo 'Pulling...  $GIT_BRANCH'"
                 sh 'printenv'
                 git branch: "${GIT_BRANCH}", url: 'https://github.com/JonathanMELIUS/irods-ruleset'
             }
         }
-        stage('checkout repositories') {
+        stage('Checkout DH-env') {
             steps {
                 cleanWs()
                 git credentialsId: 'GitX1',
                         url: 'git@github.com:MaastrichtUniversity/dh-env.git'
-                sh "ls -ll"
             }
         }
-        stage('externals clone') {
+        stage('Clone externals') {
             steps {
                 sh "yes | ./dh.sh externals clone --recursive"
             }
         }
-        stage('common proxy') {
+        stage('Up common proxy') {
             steps {
                 dir('docker-common') {
                     sh "#./rit.sh up -d proxy #TODO"
                 }
             }
         }
-        stage('dependencies') {
+        stage('Check dependencies') {
             steps {
                 dir('docker-dev/externals') {
                     sh "mkdir dh-mdr"
@@ -36,19 +35,8 @@ pipeline {
                 }
                 dir('docker-dev/externals/irods-ruleset') {
                     sh '''
-                    git ls-remote --exit-code --heads ${GIT_URL} ${GIT_BRANCH} &> /dev/null
-                    if [ $? -eq 0 ]
-                    then
-                      git checkout ${GIT_BRANCH}
-                      exit 0
-                    fi
-                    git ls-remote --exit-code --heads ${GIT_URL} ${CHANGE_BRANCH} &> /dev/null
-                    if [ $? -eq 0 ]
-                    then
-                      git checkout ${CHANGE_BRANCH}
-                      exit 0
-                    fi
-                    git checkout ${GIT_COMMIT}
+                    CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh ${GIT_URL} ${GIT_BRANCH} ${CHANGE_BRANCH})
+                    git checkout ${CHECKOUT_BRANCH}
                     '''
                 }
                 dir('docker-dev/externals/epicpid-microservice') {
@@ -57,7 +45,6 @@ pipeline {
                 dir('docker-dev/externals/dh-mdr') {
                     git branch: 'develop', credentialsId: 'GitX1', url: 'git@github.com:MaastrichtUniversity/dh-mdr.git'
                 }
-                sh "ls -ll"
                 withCredentials([
                         file(credentialsId: 'irods.secrets.cfg', variable: 'cfg')
                 ]) {
@@ -65,23 +52,12 @@ pipeline {
                 }
             }
         }
-        stage('build & up') {
+        stage('Docker dev build & up') {
             steps {
                 dir('docker-dev') {
                     sh '''
-                    git ls-remote --exit-code --heads ${GIT_URL} ${GIT_BRANCH} &> /dev/null
-                    if [ $? -eq 0 ]
-                    then
-                      git checkout ${GIT_BRANCH}
-                      exit 0
-                    fi
-                    git ls-remote --exit-code --heads ${GIT_URL} ${CHANGE_BRANCH} &> /dev/null
-                    if [ $? -eq 0 ]
-                    then
-                      git checkout ${CHANGE_BRANCH}
-                      exit 0
-                    fi
-                    git checkout ${GIT_COMMIT}
+                    CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} ${CHANGE_BRANCH})
+                    git checkout ${CHECKOUT_BRANCH}
                     '''
                     sh 'git status'
                     sh returnStatus: true, script: './rit.sh down'
