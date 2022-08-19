@@ -36,13 +36,13 @@ pipeline {
                 }
                 dir('docker-dev/externals/irods-ruleset') {
                     sh '''
-                    git ls-remote --exit-code ${GIT_URL} ${GIT_BRANCH} &> /dev/null
+                    git ls-remote --exit-code --heads ${GIT_URL} ${GIT_BRANCH} &> /dev/null
                     if [ $? -eq 0 ]
                     then
                       git checkout ${GIT_BRANCH}
                       exit 0
                     fi
-                    git ls-remote --exit-code ${GIT_URL} ${CHANGE_BRANCH} &> /dev/null
+                    git ls-remote --exit-code --heads ${GIT_URL} ${CHANGE_BRANCH} &> /dev/null
                     if [ $? -eq 0 ]
                     then
                       git checkout ${CHANGE_BRANCH}
@@ -69,13 +69,13 @@ pipeline {
             steps {
                 dir('docker-dev') {
                     sh '''
-                    git ls-remote --exit-code ${GIT_URL} ${GIT_BRANCH} &> /dev/null
+                    git ls-remote --exit-code --heads ${GIT_URL} ${GIT_BRANCH} &> /dev/null
                     if [ $? -eq 0 ]
                     then
                       git checkout ${GIT_BRANCH}
                       exit 0
                     fi
-                    git ls-remote --exit-code ${GIT_URL} ${CHANGE_BRANCH} &> /dev/null
+                    git ls-remote --exit-code --heads ${GIT_URL} ${CHANGE_BRANCH} &> /dev/null
                     if [ $? -eq 0 ]
                     then
                       git checkout ${CHANGE_BRANCH}
