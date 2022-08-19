@@ -35,7 +35,7 @@ pipeline {
                     sh "mkdir epicpid-microservice"
                 }
                 dir('docker-dev/externals/irods-ruleset') {
-                    sh "git checkout automated_rule_tests"
+                    sh "git checkout ${GIT_BRANCH}"
                 }
                 dir('docker-dev/externals/epicpid-microservice') {
                     git credentialsId: 'GitX1', url: 'git@github.com:MaastrichtUniversity/epicpid-microservice.git'
