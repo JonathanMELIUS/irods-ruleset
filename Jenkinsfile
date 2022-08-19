@@ -4,7 +4,7 @@ pipeline {
     stage('Checkout') {
       steps {
         echo 'Hello'
-        sh 'echo \'Pulling... \' + env.GIT_BRANCH'
+        sh 'echo \'Pulling... \' + $GIT_BRANCH'
         sh 'printenv'
       }
     }
