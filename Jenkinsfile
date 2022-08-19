@@ -4,7 +4,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 sh "echo 'Pulling...  $GIT_BRANCH'"
-                //sh 'printenv'
+                sh 'printenv'
                 git branch: "${GIT_BRANCH}", url: 'https://github.com/JonathanMELIUS/irods-ruleset'
             }
         }
