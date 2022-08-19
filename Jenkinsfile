@@ -35,7 +35,7 @@ pipeline {
                 }
                 dir('docker-dev/externals/irods-ruleset') {
                     sh '''
-                    CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh ${GIT_URL} ${GIT_BRANCH} ${CHANGE_BRANCH})
+                    CHECKOUT_BRANCH=$( ./github/checkout_correct_branch.sh ${GIT_URL} ${GIT_BRANCH} ${CHANGE_BRANCH} )
                     git checkout ${CHECKOUT_BRANCH}
                     '''
                 }
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 dir('docker-dev') {
                     sh '''
-                    CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} ${CHANGE_BRANCH})
+                    CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} ${CHANGE_BRANCH} )
                     git checkout ${CHECKOUT_BRANCH}
                     '''
                     sh 'git status'
