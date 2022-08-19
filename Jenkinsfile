@@ -35,8 +35,10 @@ pipeline {
                 }
                 dir('docker-dev/externals/irods-ruleset') {
                     sh '''
+                    git checkout automated_rule_tests
                     CHECKOUT_BRANCH=$( ./github/checkout_correct_branch.sh ${GIT_URL} ${GIT_BRANCH} ${CHANGE_BRANCH} )
                     git checkout ${CHECKOUT_BRANCH}
+                    git status
                     '''
                 }
                 dir('docker-dev/externals/epicpid-microservice') {
