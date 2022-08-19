@@ -83,7 +83,7 @@ pipeline {
                     sh returnStatus: true, script: './rit.sh down'
                     sh 'echo "Stop docker-dev containers"'
                 }
-                cleanWs(disableDeferredWipeout: true)
+                cleanWs()
             }
         }
 
