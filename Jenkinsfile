@@ -35,7 +35,13 @@ pipeline {
                     sh "mkdir epicpid-microservice"
                 }
                 dir('docker-dev/externals/irods-ruleset') {
-                    sh "git checkout ${GIT_BRANCH}"
+                    sh '''
+                    git checkout ${GIT_BRANCH}
+                    if [ $? -eq 1 ]
+                    then
+                      git checkout automated_rule_tests
+                    fi
+                    '''
                 }
                 dir('docker-dev/externals/epicpid-microservice') {
                     git credentialsId: 'GitX1', url: 'git@github.com:MaastrichtUniversity/epicpid-microservice.git'
@@ -54,7 +60,13 @@ pipeline {
         stage('build & up') {
             steps {
                 dir('docker-dev') {
-                    sh "git checkout ${GIT_BRANCH}"
+                    sh '''
+                    git checkout ${GIT_BRANCH}
+                    if [ $? -eq 1 ]
+                    then
+                      git checkout automated_rule_tests
+                    fi
+                    '''
                     sh 'git status'
                     sh returnStatus: true, script: './rit.sh down'
                     sh 'echo "Stop existing docker-dev"'
@@ -86,7 +98,5 @@ pipeline {
                 cleanWs()
             }
         }
-
     }
-
 }
