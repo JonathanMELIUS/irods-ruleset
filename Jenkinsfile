@@ -24,7 +24,7 @@ pipeline {
         stage('common proxy') {
             steps {
                 dir('docker-common') {
-                    sh "#./rit.sh up -d proxy  #TODO"
+                    sh "#./rit.sh up -d proxy #TODO"
                 }
             }
         }
