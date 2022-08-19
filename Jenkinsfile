@@ -36,11 +36,19 @@ pipeline {
                 }
                 dir('docker-dev/externals/irods-ruleset') {
                     sh '''
-                    git checkout ${GIT_BRANCH}
-                    if [ $? -eq 1 ]
+                    git ls-remote --exit-code ${GIT_URL} ${GIT_BRANCH}
+                    if [ $? -eq 0 ]
                     then
-                      git checkout automated_rule_tests
+                      git checkout ${GIT_BRANCH}
+                      exit 0
                     fi
+                    git ls-remote --exit-code ${GIT_URL} ${CHANGE_BRANCH}
+                    if [ $? -eq 0 ]
+                    then
+                      git checkout ${CHANGE_BRANCH}
+                      exit 0
+                    fi
+                    git checkout ${GIT_COMMIT}
                     '''
                 }
                 dir('docker-dev/externals/epicpid-microservice') {
@@ -61,11 +69,19 @@ pipeline {
             steps {
                 dir('docker-dev') {
                     sh '''
-                    git checkout ${GIT_BRANCH}
-                    if [ $? -eq 1 ]
+                    git ls-remote --exit-code ${GIT_URL} ${GIT_BRANCH}
+                    if [ $? -eq 0 ]
                     then
-                      git checkout automated_rule_tests
+                      git checkout ${GIT_BRANCH}
+                      exit 0
                     fi
+                    git ls-remote --exit-code ${GIT_URL} ${CHANGE_BRANCH}
+                    if [ $? -eq 0 ]
+                    then
+                      git checkout ${CHANGE_BRANCH}
+                      exit 0
+                    fi
+                    git checkout ${GIT_COMMIT}
                     '''
                     sh 'git status'
                     sh returnStatus: true, script: './rit.sh down'
