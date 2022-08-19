@@ -6,7 +6,7 @@ pipeline {
         echo 'Hello'
         sh "echo 'Pulling...  $GIT_BRANCH'"
         //sh 'printenv'
-        git branch: "*/${GIT_BRANCH}", url: 'https://github.com/JonathanMELIUS/irods-ruleset'
+        git branch: "${GIT_BRANCH}", url: 'https://github.com/JonathanMELIUS/irods-ruleset'
       }
     }
     
