@@ -1,6 +1,6 @@
 # irods-ruleset 
 
-The rulesets for the DataHub iRODS installation. mj
+The rulesets for the DataHub iRODS installation.
 
 ## Usage
 Individual rule files can be run using irule. For example:
