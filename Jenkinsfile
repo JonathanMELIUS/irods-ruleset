@@ -70,12 +70,12 @@ pipeline {
                 	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                    sh """
+                    sh '''
                     CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/irods-ruleset.git ${GIT_BRANCH} )
                     echo ${CHECKOUT_BRANCH}
                     git checkout ${CHECKOUT_BRANCH}
                     git status
-                    """
+                    '''
 //                 	git branch: "${GIT_BRANCH}", url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
                 }
                 dir('docker-dev/externals/sram-sync'){
@@ -90,12 +90,12 @@ pipeline {
         stage('Start iRODS dev env'){
             steps{
                 dir('docker-dev'){
-                    sh """
+                    sh '''
                     CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/idocker-dev.git ${GIT_BRANCH} )
                     echo ${CHECKOUT_BRANCH}
                     git checkout ${CHECKOUT_BRANCH}
                     git status
-                    """
+                    '''
                     //sh "git checkout ${GIT_BRANCH}"
                     sh 'ls -all'
                     sh returnStatus: true, script: './rit.sh down'
