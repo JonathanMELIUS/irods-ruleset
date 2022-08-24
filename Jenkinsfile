@@ -71,6 +71,8 @@ pipeline {
                 }
                 dir('docker-dev/externals/irods-ruleset'){
                 	git branch: "automated_rule_tests", url:'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                }
+                dir('docker-dev/externals/irods-ruleset'){
                     sh '''
                     ls -all
                     CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/irods-ruleset.git ${GIT_BRANCH} )
