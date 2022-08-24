@@ -69,7 +69,7 @@ pipeline {
                 	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                	git branch: 'automated_rule_tests', url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                	git branch: "${GIT_BRANCH}", url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
                 }
                 dir('docker-dev/externals/sram-sync'){
                 	git branch: 'develop', url: 'https://github.com/MaastrichtUniversity/sram-sync.git'
@@ -84,8 +84,7 @@ pipeline {
         stage('Start iRODS dev env'){
             steps{
                 dir('docker-dev'){
-                    sh "git checkout automated_rule_tests"
-                    sh 'cat irods.secrets.cfg'
+                    sh "git checkout ${GIT_BRANCH}"
                     sh 'ls -all'
                     sh returnStatus: true, script: './rit.sh down'
                     sh 'echo "Stop existing docker-dev"'
