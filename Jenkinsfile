@@ -96,13 +96,21 @@ pipeline {
         stage('Start iRODS dev env'){
             steps{
                 dir('docker-dev'){
-                    sh '''
-                    CHECKOUT_BRANCH=$( ../docker-dev/externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} )
-                    echo ${CHECKOUT_BRANCH}
-                    git checkout ${CHECKOUT_BRANCH}
-                    git status
+                    sh returnStatus: true, script:'''
+                    git ls-remote --exit-code --heads https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} &> /dev/null
+                    if [ $? -eq 0 ]
+                    then
+                      echo ${GIT_BRANCH}
+                      git checkout ${GIT_BRANCH}
+                      exit 0
+                    fi
+
+                    echo "develop"
+                    git checkout develop
+                    exit 0
                     '''
                     //sh "git checkout ${GIT_BRANCH}"
+                    sh 'git status'
                     sh 'ls -all'
                     sh returnStatus: true, script: './rit.sh down'
                     sh 'echo "Stop existing docker-dev"'
