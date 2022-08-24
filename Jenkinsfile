@@ -3,6 +3,8 @@ pipeline {
     stages {
         stage('checkout repositories'){
             steps{
+                sh "echo 'Pulling...  $GIT_BRANCH'"
+                sh "printenv"
                 cleanWs()
                 sh "mkdir docker-common"
                 dir('docker-common'){
