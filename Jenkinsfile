@@ -97,7 +97,7 @@ pipeline {
             steps{
                 dir('docker-dev'){
                     sh '''
-                    CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} )
+                    CHECKOUT_BRANCH=$( ../docker-dev/externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} )
                     echo ${CHECKOUT_BRANCH}
                     git checkout ${CHECKOUT_BRANCH}
                     git status
