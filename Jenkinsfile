@@ -70,19 +70,25 @@ pipeline {
                 	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                	//git branch: "automated_rule_tests", url:'https://github.com/MaastrichtUniversity/irods-ruleset.git'
-                	git branch: "automated_rule_tests", url:'https://github.com/JonathanMELIUS/irods-ruleset.git'
+                	git branch: "develop", url:'https://github.com/JonathanMELIUS/irods-ruleset.git'
 
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                    sh '''
-                    ls -all
-                    CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/JonathanMELIUS/irods-ruleset.git ${GIT_BRANCH} )
-                    echo ${CHECKOUT_BRANCH}
-                    git checkout ${CHECKOUT_BRANCH}
-                    git status
+                    sh returnStatus: true, script:'''
+                    git ls-remote --exit-code --heads https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} &> /dev/null
+                    if [ $? -eq 0 ]
+                    then
+                      echo ${GIT_BRANCH}
+                      git checkout ${GIT_BRANCH}
+                      exit 0
+                    fi
+
+                    echo "develop"
+                    git checkout develop
+                    exit 0
                     '''
-//                 	git branch: "${GIT_BRANCH}", url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                    sh 'git status'
+                    sh 'ls -all'
                 }
                 dir('docker-dev/externals/sram-sync'){
                 	git branch: 'develop', url: 'https://github.com/MaastrichtUniversity/sram-sync.git'
