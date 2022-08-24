@@ -70,12 +70,14 @@ pipeline {
                 	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                	git branch: "automated_rule_tests", url:'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                	//git branch: "automated_rule_tests", url:'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                	git branch: "automated_rule_tests", url:'https://github.com/JonathanMELIUS/irods-ruleset.git'
+
                 }
                 dir('docker-dev/externals/irods-ruleset'){
                     sh '''
                     ls -all
-                    CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/irods-ruleset.git ${GIT_BRANCH} )
+                    CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/JonathanMELIUS/irods-ruleset.git ${GIT_BRANCH} )
                     echo ${CHECKOUT_BRANCH}
                     git checkout ${CHECKOUT_BRANCH}
                     git status
