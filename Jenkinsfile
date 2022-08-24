@@ -70,7 +70,7 @@ pipeline {
                 	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                	git branch: '${GIT_BRANCH}', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
+                	git branch: '${GIT_BRANCH}', url:'https://github.com/MaastrichtUniversity/irods-ruleset.git'
                     sh '''
                     ls -all
                     CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/irods-ruleset.git ${GIT_BRANCH} )
