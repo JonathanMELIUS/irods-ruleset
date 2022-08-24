@@ -1,68 +1,92 @@
 pipeline {
     agent any
     stages {
-        stage('Init') {
-            steps {
-                sh "echo 'Pulling....  $GIT_BRANCH'"
-                sh 'printenv'
-                git branch: "${GIT_BRANCH}", url: 'https://github.com/JonathanMELIUS/irods-ruleset'
-            }
-        }
-        stage('Checkout DH-env') {
-            steps {
+        stage('checkout repositories'){
+            steps{
                 cleanWs()
-                git credentialsId: 'GitX1',
-                        url: 'git@github.com:MaastrichtUniversity/dh-env.git'
-            }
-        }
-        stage('Clone externals') {
-            steps {
-                sh "yes | ./dh.sh externals clone --recursive"
-            }
-        }
-        stage('Up common proxy') {
-            steps {
-                dir('docker-common') {
-                    sh "#./rit.sh up -d proxy #TODO"
+                sh "mkdir docker-common"
+                dir('docker-common'){
+                    git branch: 'develop', url: 'https://github.com/MaastrichtUniversity/docker-common.git'
                 }
-            }
-        }
-        stage('Check dependencies') {
-            steps {
-                dir('docker-dev/externals') {
-                    sh "mkdir dh-mdr"
-                    sh "mkdir epicpid-microservice"
-                }
-                dir('docker-dev/externals/irods-ruleset') {
-                    sh '''
-                    git checkout automated_rule_tests
-                    #CHECKOUT_BRANCH=$( ./github/checkout_correct_branch.sh ${GIT_URL} ${GIT_BRANCH} ${CHANGE_BRANCH} )
-                    #git checkout ${CHECKOUT_BRANCH}
-                    #git status
-                    '''
-                }
-                dir('docker-dev/externals/epicpid-microservice') {
-                    git credentialsId: 'GitX1', url: 'git@github.com:MaastrichtUniversity/epicpid-microservice.git'
-                }
-                dir('docker-dev/externals/dh-mdr') {
-                    git branch: 'develop', credentialsId: 'GitX1', url: 'git@github.com:MaastrichtUniversity/dh-mdr.git'
+                sh "mkdir docker-dev"
+                dir('docker-dev'){
+                    git branch: 'develop', url: 'https://github.com/MaastrichtUniversity/docker-dev.git'
                 }
                 withCredentials([
-                        file(credentialsId: 'irods.secrets.cfg', variable: 'cfg')
-                ]) {
-                    sh "cp \$cfg docker-dev/irods.secrets.cfg"
+                    file(credentialsId: 'lib-dh', variable: 'libdh')]) {
+                       sh "cp \$libdh ./lib-dh.sh"
+                }
+                sh "ls -ll"
+            }
+        }
+         stage('Clone docker-common externals'){
+            steps{
+                dir('docker-common'){
+                    sh "./rit.sh externals clone"
+                }
+                dir('docker-common/externals'){
+                    sh """
+                    mkdir nagios-docker
+                    mkdir elastalert-docker
+                    mkdir dh-mailer
+                    mkdir dh-fail2ban
+                    touch dh-fail2ban/fail2ban.env
+                    """
                 }
             }
         }
-        stage('Docker dev build & up') {
-            steps {
-                dir('docker-dev') {
-                    sh '''
-                    git checkout automated_rule_tests
-                    #CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/docker-dev.git ${GIT_BRANCH} ${CHANGE_BRANCH} )
-                    #git checkout ${CHECKOUT_BRANCH}
-                    '''
-                    sh 'git status'
+        stage('Start proxy'){
+            steps{
+                dir('docker-common'){
+                    sh "#./rit.sh up -d proxy"
+                }
+            }
+        }
+        
+         stage('Clone docker-dev externals'){
+            steps{
+                dir('docker-dev'){
+                    sh "./rit.sh externals clone"
+                }
+                dir('docker-dev/externals'){
+                    sh """
+                    mkdir dh-faker
+                    mkdir dh-mdr
+                    mkdir -p epicpid-microservice/docker
+                    mkdir irods-frontend
+                    mkdir irods-helper-cmd
+                    mkdir irods-microservices
+                    mkdir irods-open-access-repo
+                    mkdir irods-ruleset
+                    mkdir rit-davrods
+                    mkdir sram-sync
+                    """
+                }
+                dir('docker-dev/externals/irods-helper-cmd'){
+                	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-helper-cmd.git'
+                }
+                dir('docker-dev/externals/irods-microservices'){
+                	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
+                }
+                dir('docker-dev/externals/irods-ruleset'){
+                	git branch: 'automated_rule_tests', url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                }
+                dir('docker-dev/externals/sram-sync'){
+                	git branch: 'develop', url: 'https://github.com/MaastrichtUniversity/sram-sync.git'
+                }
+                withCredentials([
+                    file(credentialsId: 'irods.secrets.cfg', variable: 'cfg')]) {
+                   sh "cp \$cfg docker-dev/irods.secrets.cfg"
+                }
+            }
+        }
+        
+        stage('Start iRODS dev env'){
+            steps{
+                dir('docker-dev'){
+                    sh "git checkout automated_rule_tests"
+                    sh 'cat irods.secrets.cfg'
+                    sh 'ls -all'
                     sh returnStatus: true, script: './rit.sh down'
                     sh 'echo "Stop existing docker-dev"'
                     sh '''echo "Start iRODS dev environnement"
