@@ -1,7 +1,7 @@
 pipeline {
     agent any
     stages {
-        stage('checkout repositories'){
+        stage('Checkout docker repositories'){
             steps{
                 sh "echo 'Pulling...  $GIT_BRANCH'"
                 sh "printenv"
@@ -44,8 +44,7 @@ pipeline {
                 }
             }
         }
-        
-         stage('Clone docker-dev externals'){
+        stage('Clone docker-dev externals'){
             steps{
                 dir('docker-dev'){
                     sh "./rit.sh externals clone"
@@ -71,7 +70,13 @@ pipeline {
                 	git branch: 'develop', url:'https://github.com/MaastrichtUniversity/irods-microservices.git'
                 }
                 dir('docker-dev/externals/irods-ruleset'){
-                	git branch: "${GIT_BRANCH}", url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
+                    sh """
+                    CHECKOUT_BRANCH=$( .github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/irods-ruleset.git ${GIT_BRANCH} )
+                    echo ${CHECKOUT_BRANCH}
+                    git checkout ${CHECKOUT_BRANCH}
+                    git status
+                    """
+//                 	git branch: "${GIT_BRANCH}", url: 'https://github.com/MaastrichtUniversity/irods-ruleset.git'
                 }
                 dir('docker-dev/externals/sram-sync'){
                 	git branch: 'develop', url: 'https://github.com/MaastrichtUniversity/sram-sync.git'
@@ -82,11 +87,16 @@ pipeline {
                 }
             }
         }
-        
         stage('Start iRODS dev env'){
             steps{
                 dir('docker-dev'){
-                    sh "git checkout ${GIT_BRANCH}"
+                    sh """
+                    CHECKOUT_BRANCH=$( ./externals/irods-ruleset/github/checkout_correct_branch.sh https://github.com/MaastrichtUniversity/idocker-dev.git ${GIT_BRANCH} )
+                    echo ${CHECKOUT_BRANCH}
+                    git checkout ${CHECKOUT_BRANCH}
+                    git status
+                    """
+                    //sh "git checkout ${GIT_BRANCH}"
                     sh 'ls -all'
                     sh returnStatus: true, script: './rit.sh down'
                     sh 'echo "Stop existing docker-dev"'
